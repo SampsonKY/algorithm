@@ -1,3 +1,55 @@
+## 栈
+
+[剑指 Offer 30. 包含min函数的栈](https://leetcode-cn.com/problems/bao-han-minhan-shu-de-zhan-lcof/)
+
+**思路**：借助辅助栈
+
+```js
+var MinStack = function() {
+    this.stack = []
+    this.minstack = []
+};
+
+MinStack.prototype.push = function(x) {
+    this.stack.push(x)
+    if(this.minstack.length === 0 || x<this.minstack[this.minstack.length-1]){
+        this.minstack.push(x)
+    } else{
+        this.minstack.push(this.minstack[this.minstack.length-1])
+    }
+};
+
+MinStack.prototype.pop = function() {
+    this.stack.pop()
+    this.minstack.pop()
+};
+
+MinStack.prototype.top = function() {
+    return this.stack[this.stack.length-1]
+};
+
+MinStack.prototype.min = function() {
+    return this.minstack[this.minstack.length-1]
+};
+```
+
+
+
+## 数组
+
+[剑指 Offer 40. 最小的k个数](https://leetcode-cn.com/problems/zui-xiao-de-kge-shu-lcof/)
+
+**题目**：输入整数数组 `arr` ，找出其中最小的 `k` 个数。例如，输入4、5、1、6、2、7、3、8这8个数字，则最小的4个数字是1、2、3、4。
+
+**思路**
+
+- 直接排序
+- 利用快排思想
+- 大根堆 or 红黑树
+- 计数排序
+
+具体参考：[题解](https://leetcode-cn.com/problems/zui-xiao-de-kge-shu-lcof/solution/chao-quan-3chong-jie-fa-zhi-jie-pai-xu-zui-da-dui-/)
+
 ## 字符串
 
 [剑指 Offer 50. 第一个只出现一次的字符](https://leetcode-cn.com/problems/di-yi-ge-zhi-chu-xian-yi-ci-de-zi-fu-lcof/)
@@ -176,6 +228,43 @@ var maxDepth = function(root){
 }
 ```
 
+[剑指 Offer 55 - II. 平衡二叉树](https://leetcode-cn.com/problems/ping-heng-er-cha-shu-lcof/)
+
+```js
+var isBalanced = function(root) {
+    if(!root) return true
+    let left = Depth(root.left)
+    let right = Depth(root.right)
+    if(Math.abs(left-right)>1) return false
+    return isBalanced(root.left) && isBalanced(root.right)
+};
+
+var Depth = function(root){
+    if(!root) return 0
+    var left = Depth(root.left)
+    var right = Depth(root.right)
+    var depth = Math.max(left, right)+1
+    return depth
+}
+```
+
+[剑指 Offer 28. 对称的二叉树](https://leetcode-cn.com/problems/dui-cheng-de-er-cha-shu-lcof/)
+
+```js
+var isSymmetric = function(root) {
+    if(!root) return true
+    return compare(root.left, root.right)
+};
+var compare = function(s, t){
+    if(!s && !t) return true
+    if(!s || !t) return false
+    if(s.val !== t.val) return false
+    return compare(s.left,t.right) && compare(s.right, t.left)
+}
+```
+
+
+
 
 
 ### 二叉搜索树
@@ -328,6 +417,23 @@ var hammingWeight = function(n) {
         n &= n-1
     }
     return res
+};
+```
+
+[剑指 Offer 65. 不用加减乘除做加法](https://leetcode-cn.com/problems/bu-yong-jia-jian-cheng-chu-zuo-jia-fa-lcof/)
+
+```js
+var add = function(a, b) {
+    let sum, carry
+    do{
+        sum = a^b //相加但不产生进位
+        carry = (a&b)<<1 //记下进位
+        //前两个步骤相加
+        a=sum
+        b=carry
+    }while(b!=0)
+
+    return a
 };
 ```
 
