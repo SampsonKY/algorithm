@@ -704,3 +704,119 @@ var maxSubArray = function(nums) {
 };
 ```
 
+**[剑指 Offer 60. n个骰子的点数](https://leetcode-cn.com/problems/nge-tou-zi-de-dian-shu-lcof/)**
+
+**题目**：把n个骰子扔在地上，所有骰子朝上一面的点数之和为s。输入n，打印出s的所有可能的值出现的概率。
+
+**示例**：
+
+```
+输入: 1
+输出: [0.16667,0.16667,0.16667,0.16667,0.16667,0.16667]
+```
+
+**思路**
+
+n 个骰子，共有 6^n^ 种排列。点数之和的范围为：n~6*n，即共有(6n-n+1)种情况。
+
+- **方法一：递归**
+
+  把n个骰子分为两堆，第一堆1个，第二堆n-1个。
+
+- **方法二：动态规划**[参考](https://leetcode-cn.com/problems/nge-tou-zi-de-dian-shu-lcof/solution/nge-tou-zi-de-dian-shu-dong-tai-gui-hua-ji-qi-yo-3/)
+
+  - `dp[i][j]` 表示投掷完 i 枚骰子后，点数 j 出现的次数。
+  - **状态转移方程**
+
+  ![image-20201101215332707](C:\Users\theon\AppData\Roaming\Typora\typora-user-images\image-20201101215332707.png)
+
+  ​	*n* 表示阶段，j表示投掷完 n枚骰子后的点数和，*i* 表示第 *n* 枚骰子会出现的六个点数。
+
+  - **边界处理、初始化**
+
+    初始化状态为投掷完 1 枚骰子后的次数
+
+```js
+/**
+ * @param {number} n
+ * @return {number[]}
+ */
+//递归
+var twoSum = function(n) {
+    if(n<1) return []
+    let res = new Array(6*n-n+1).fill(0) //n个骰子的点数和最小为n，最大为6n，共有6n-n+1种点数
+    Probability(n, res)
+    let total = Math.pow(6, n) //总共有6^n中排列情况
+    for(let i=n; i<=6*n; i++){ 
+        res[i-n] = res[i-n]/total 
+    }
+    return res
+};
+
+function Probability(n, res){
+    for(let i=1; i<=6; i++){  //把n个骰子分为两堆，第一堆1个，第二堆n-1个。单独的一个可能出现1~6的点数。需要计算
+        Probable(n, n, i, res)
+    }
+}
+function Probable(origin, cur, sum, res){
+    if(cur===1) res[sum-origin]++ //递归结束条件就是最后只剩下一个骰子
+    else{
+        for(let i=1; i<=6; i++){
+            Probable(origin, cur-1, i+sum, res)
+        }
+    }
+}
+
+//动态规划
+var twoSum = function(n){
+    if(n<1) return []
+    let dp = new Array(n+1)
+    for(let i=0; i<=n;i++){
+        dp[i] = new Array(6*n+1).fill(0) 
+    }
+    for(let i=1; i<=6; i++){
+        dp[1][i] = 1
+    }
+    for(let i=2; i<=n; i++){
+        for(let j=i; j<=6*i; j++){
+            for(let cur = 1; cur<=6; cur++){
+                if(j-cur<=0) break
+                dp[i][j] += dp[i-1][j-cur]
+            }
+        }
+    }
+    let total = Math.pow(6, n)
+    let res = []
+    for(let i=n; i<=6*n; i++){
+        console.log(dp[n][i])
+        res.push(dp[n][i]/total)
+    }
+    return res
+}
+
+//动态规划空间优化
+var twoSum = function(n){
+    if(n<1) return []
+    let dp = new Array(70).fill(0)
+    for(let i=1; i<=6; i++){
+        dp[i] = 1
+    }
+
+    for(let i=2; i<=n; i++){
+        for(let j=6*i; j>=i; j--){
+            dp[j] = 0
+            for(let cur=1; cur<=6; cur++){
+                if(j-cur<i-1) break
+                dp[j]+=dp[j-cur]
+            }
+        }
+    }
+    let total = Math.pow(6,n)
+    let res = []
+    for(let i=n; i<=6*n; i++){
+        res.push(dp[i]/total)
+    }
+    return res
+}
+```
+
