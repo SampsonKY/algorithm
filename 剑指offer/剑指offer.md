@@ -50,6 +50,10 @@ MinStack.prototype.min = function() {
 
 具体参考：[题解](https://leetcode-cn.com/problems/zui-xiao-de-kge-shu-lcof/solution/chao-quan-3chong-jie-fa-zhi-jie-pai-xu-zui-da-dui-/)
 
+
+
+
+
 ## 字符串
 
 [剑指 Offer 50. 第一个只出现一次的字符](https://leetcode-cn.com/problems/di-yi-ge-zhi-chu-xian-yi-ci-de-zi-fu-lcof/)
@@ -467,6 +471,62 @@ var levelOrder = function(root) {
 
 
 
+## 二分查找
+
+[剑指 Offer 11. 旋转数组的最小数字](https://leetcode-cn.com/problems/xuan-zhuan-shu-zu-de-zui-xiao-shu-zi-lcof/)
+
+**题目**：把一个数组最开始的若干个元素搬到数组的末尾，我们称之为数组的旋转。输入一个递增排序的数组的一个旋转，输出旋转数组的最小元素。例如，数组 `[3,4,5,1,2]` 为 `[1,2,3,4,5]` 的一个旋转，该数组的最小值为1。 
+
+```js
+var minArray = function(numbers) {
+    let left = 0, right = numbers.length-1
+
+    while(left <= right){
+        let mid = Math.floor((right+left)/2)
+        if(numbers[mid] > numbers[right]){
+            left = mid+1
+        }else if(numbers[mid] < numbers[right]){
+            right = mid
+        } else right = right-1
+    }
+    
+    return numbers[left]
+};
+```
+
+[剑指 Offer 53 - I. 在排序数组中查找数字 I](https://leetcode-cn.com/problems/zai-pai-xu-shu-zu-zhong-cha-zhao-shu-zi-lcof/)
+
+**题目**：统计一个数字在排序数组中出现的次数。
+
+**思路**：找到左边界
+
+ ```js
+var search = function(nums, target) {
+    let left = 0, right = nums.length-1
+    let res = 0
+    while(left<=right){
+        let mid = Math.floor((left+right)/2)
+        if(nums[mid] === target) {
+            right = mid-1
+        }
+        else if(nums[mid] > target){
+            right = mid-1
+        }else if(nums[mid] < target){
+            left = mid+1
+        }
+    }
+    while(nums[left]==target){
+        res++
+        left++
+    }
+    return res
+};
+ ```
+
+
+
+
+
 ## 数学
 
 **[剑指 Offer 62. 圆圈中最后剩下的数字](https://leetcode-cn.com/problems/yuan-quan-zhong-zui-hou-sheng-xia-de-shu-zi-lcof/)**
@@ -595,6 +655,49 @@ var findRepeatNumber = function(nums) {
     }
     return -1
 };
+```
+
+[剑指 Offer 61. 扑克牌中的顺子](https://leetcode-cn.com/problems/bu-ke-pai-zhong-de-shun-zi-lcof/)
+
+**题目**：从扑克牌中随机抽5张牌，判断是不是一个顺子，即这5张牌是不是连续的。2～10为数字本身，A为1，J为11，Q为12，K为13，而大、小王为 0 ，可以看成任意数字。A 不能视为 14。
+
+**示例**
+
+```
+输入: [1,2,3,4,5]
+输出: True
+
+输入: [0,0,1,2,5]
+输出: True
+```
+
+**思路**：5张牌是顺子的充分条件是：① 除大小王外，所有牌**无重复**；②设5张牌中最大的牌为max，最小的牌为min（大小王除外），需要满足**max-min<5**。
+
+```js
+//方法一： set + 遍历
+var isStraight = function(nums) {
+    let set = new Set()
+    let max = 0, min = 14
+    for(let i=0; i<nums.length; i++){
+        if(nums[i] == 0) continue //跳过大小王
+        max = Math.max(max, nums[i]) //最大牌
+        min = Math.min(min, nums[i]) //最小牌
+        if(set.has(nums[i])) return false //若有重复，提前返回flase
+        set.add(nums[i])
+    }
+    return max-min < 5
+};
+
+//方法二：排序 + 遍历
+var isStraight = function(nums){
+    nums.sort((a,b)=>a-b)
+    let min = 0
+    for(let i=0; i<nums.length; i++){
+        if(nums[i]===0) min++
+        else if(nums[i+1] === nums[i]) return false
+    }
+    return nums[4] - nums[min] < 5
+}
 ```
 
 
