@@ -50,7 +50,150 @@ MinStack.prototype.min = function() {
 
 具体参考：[题解](https://leetcode-cn.com/problems/zui-xiao-de-kge-shu-lcof/solution/chao-quan-3chong-jie-fa-zhi-jie-pai-xu-zui-da-dui-/)
 
+[面试题 01.07. 旋转矩阵](https://leetcode-cn.com/problems/rotate-matrix-lcci/)
 
+**题目**：给你一幅由 `N × N` 矩阵表示的图像，其中每个像素的大小为 4 字节。请你设计一种算法，将图像旋转 90 度。
+
+**示例**：
+
+```
+给定 matrix = 
+[
+  [1,2,3],
+  [4,5,6],
+  [7,8,9]
+],
+
+原地旋转输入矩阵，使其变为:
+[
+  [7,4,1],
+  [8,5,2],
+  [9,6,3]
+]
+```
+
+**思路**：
+
+- 方法一：找出翻转前后矩阵的对应关系，利用一个辅助矩阵
+- 方法二：原地翻转，先水平翻转，在沿主对角线翻转
+
+```js
+//方法一
+var rotate = function(matrix) {
+    let n = matrix.length
+    let new_matrix = new Array(n)
+    for(let i=0; i<n; i++){
+        new_matrix[i] = new Array(n)
+    }
+    for(let i=0; i<n; i++){
+        for(let j =0; j<n; j++){
+            new_matrix[j][n-i-1] = matrix[i][j]
+        }
+    }
+    
+    for(let i=0; i<n; i++){
+        for(let j=0; j<n; j++){
+            matrix[i][j] = new_matrix[i][j]
+        }
+    }
+};
+
+//方法二 
+var rotate = function(matrix){
+    let n = matrix.length
+    //水平翻转
+    for(let i=0; i<n/2; i++){
+        for(let j=0; j<n; j++){
+            let tmp = matrix[i][j]
+            matrix[i][j] = matrix[n-i-1][j]
+            matrix[n-i-1][j] = tmp
+        }
+    }
+
+    //主对角线翻转
+    for(let i=0; i<n; i++){
+        for(let j=0; j<i; j++){
+            let tmp = matrix[i][j]
+            matrix[i][j] = matrix[j][i]
+            matrix[j][i] = tmp
+        }
+    }
+}
+```
+
+[剑指 Offer 29. 顺时针打印矩阵](https://leetcode-cn.com/problems/shun-shi-zhen-da-yin-ju-zhen-lcof/)
+
+**题目**：输入一个矩阵，按照从外向里以顺时针的顺序依次打印出每一个数字。
+
+ **示例**：
+
+```
+输入：matrix = [[1,2,3],[4,5,6],[7,8,9]]
+输出：[1,2,3,6,9,8,7,4,5]
+```
+
+**思路**
+
+- 方法一：每一次都将矩阵第一行弹出，然后再逆时针将矩阵翻转90°，循环执行，直到数组为空
+
+- 方法二：初始化矩阵左右上下四个边界，再“从左到右，从上到下，从右到左，从下到上”四个方向循环，每个方向打印做三件事
+
+  - 根据边界打印，即将元素按顺序添加至列表 `res` 尾部；
+  - 边界向内收缩 11 （代表已被打印）；
+  - 判断是否打印完毕（边界是否相遇），若打印完毕则跳出
+
+  | 打印方向 | 1. 根据边界打印        | 2. 边界向内收缩  | 3. 是否打印完毕 |
+  | -------- | ---------------------- | ---------------- | --------------- |
+  | 从左向右 | 左边界`l` ，右边界 `r` | 上边界 `t` 加 11 | 是否 `t > b`    |
+  | 从上向下 | 上边界 `t` ，下边界`b` | 右边界 `r` 减 11 | 是否 `l > r`    |
+  | 从右向左 | 右边界 `r` ，左边界`l` | 下边界 `b` 减 11 | 是否 `t > b`    |
+  | 从下向上 | 下边界 `b` ，上边界`t` | 左边界 `l` 加 11 | 是否 `l > r`    |
+
+```js
+//方法一：矩阵翻转
+var spiralOrder = function(matrix) {
+    let len = matrix.length
+    if(len===0) return []
+    let res = []
+    while(matrix.length){
+        res.push(...matrix.shift()) //每次将矩阵第一行弹出
+        matrix = rotate(matrix)
+    }
+    function rotate(matrix){ //将矩阵逆时针旋转90°
+        if(matrix.length==0) return []
+        let n = matrix.length
+        let m = matrix[0].length
+        let new_matrix = new Array(m)
+        for(let j=0; j<m; j++){
+            new_matrix[j] = new Array(n)
+        }
+        for(let i=0; i<n; i++){
+            for(let j = 0; j<matrix[0].length; j++){
+                new_matrix[m-j-1][i] = matrix[i][j] //关键交换步骤
+            }
+        }
+        return new_matrix
+    }
+    return res
+};
+//方法二
+function spiralOrder(matrix){
+    if(matrix.length === 0) return []
+    let l = 0, r=matrix[0].length-1, t=0, b = matrix.length-1,x=0
+    let res = []
+    while(true){
+        for(let i=l; i<=r; i++) res[x++] = matrix[t][i]  //left to right
+        if(++t > b) break
+        for(let i=t; i<=b; i++) res[x++] = matrix[i][r] //top to bottom
+        if(l > --r) break
+        for(let i=r; i>=l; i--) res[x++] = matrix[b][i] //right to left
+        if(t>--b) break
+        for(let i=b; i>=t; i--) res[x++] = matrix[i][l] //bottom to top
+        if(++l > r) break
+    }
+    return res
+}
+```
 
 
 
@@ -96,6 +239,52 @@ var firstUniqChar = function(s) {
     return " "
 };
 ```
+
+[剑指 Offer 58 - I. 翻转单词顺序](https://leetcode-cn.com/problems/fan-zhuan-dan-ci-shun-xu-lcof/)
+
+**示例 1：**
+
+```
+输入: "  hello world!  "
+输出: "world! hello"
+解释: 输入字符串可以在前面或者后面包含多余的空格，但是反转后的字符不能包括。
+```
+
+**示例 2：**
+
+```
+输入: "a good   example"
+输出: "example good a"
+解释: 如果两个单词间有多余的空格，将反转后单词间的空格减少到只含一个。
+```
+
+**思路：**
+
+- 直接利用字符串的方法 +正则
+- 双指针法
+
+```js
+//法一
+var reverseWords = function(s) {
+    return s.trim().replace(/\s+/ig," ").split(" ").reverse().join(" ")
+};
+
+//双指针法
+var reverseWords = function(s) {
+    s = s.trim()
+    let left = right = s.length-1
+    let res = ""
+    while(left >= 0){
+        while(left>=0 && s[left]!==" ") left--
+        res+=(s.substring(left+1,right+1)+ " ")
+        while(left>=0 && s[left]===" ") left--
+        right = left
+    }
+    return res.trim()
+};
+```
+
+
 
 ## 链表
 
@@ -522,6 +711,29 @@ var search = function(nums, target) {
     return res
 };
  ```
+
+[剑指 Offer 53 - II. 0～n-1中缺失的数字](https://leetcode-cn.com/problems/que-shi-de-shu-zi-lcof/)
+
+**题目**：一个长度为n-1的递增排序数组中的所有数字都是唯一的，并且每个数字都在范围0～n-1之内。在范围0～n-1内的n个数字中有且只有一个数字不在该数组中，请找出这个数字
+
+**示例 1:**
+
+```
+输入: [0,1,3]
+输出: 2
+```
+
+```js
+var missingNumber = function(nums) {
+    let left = 0, right = nums.length-1
+    while(left<right){
+        let mid = Math.floor((right+left)/2)
+        if(nums[mid] !== mid) right = mid
+        else left = mid+1
+    }
+    return left === nums.length-1 && nums[left]==left ? left+1 :left
+};
+```
 
 
 
