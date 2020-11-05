@@ -341,6 +341,69 @@ var mergeTwoLists = function(l1, l2) {
 };
 ```
 
+[剑指 Offer 35. 复杂链表的复制](https://leetcode-cn.com/problems/fu-za-lian-biao-de-fu-zhi-lcof/)
+
+**题目**：请实现 `copyRandomList` 函数，复制一个复杂链表。在复杂链表中，每个节点除了有一个 `next` 指针指向下一个节点，还有一个 `random` 指针指向链表中的任意节点或者 `null`。
+
+**示例 1：**
+
+![img](https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2020/01/09/e1.png)
+
+```
+输入：head = [[7,null],[13,0],[11,4],[10,2],[1,0]]
+输出：[[7,null],[13,0],[11,4],[10,2],[1,0]]
+```
+
+**思路**：先复制next，再复制 random
+
+```js
+//方法一：借助map
+var copyRandomList = function(head) {
+    if(!head) return null
+    var cur = head
+    var map = new Map()
+    while(cur){
+        var clone = new Node(cur.val, null, null)
+        map.set(cur, clone)
+        cur = cur.next
+    }
+    cur = head
+    while(cur){
+        map.get(cur).next = cur.next===null?null:map.get(cur.next)
+        map.get(cur).random = map.get(cur.random)
+        cur = cur.next
+    }
+    return map.get(head)
+};
+
+//方法二
+var copyRandomList = function(head){
+    if(!head) return null
+    var cur = head
+    while(cur){
+        var clone = new Node(cur.val, cur.next, null)
+        var tmp = cur.next
+        cur.next = clone
+        cur = tmp
+    }
+    cur = head
+    while(cur){
+        if(cur.random) cur.next.random = cur.random.next
+        cur = cur.next.next
+    }
+    cur = head
+    var newlist = cur.next
+    while(cur && cur.next){
+        var tmp = cur.next
+        cur.next = cur.next.next
+        cur = tmp
+    }
+    return newlist
+}
+```
+
+
+
 ### 快慢指针
 
 [剑指 Offer 22. 链表中倒数第k个节点](https://leetcode-cn.com/problems/lian-biao-zhong-dao-shu-di-kge-jie-dian-lcof/)
@@ -630,6 +693,45 @@ var add = function(a, b) {
 };
 ```
 
+[剑指 Offer 56 - II. 数组中数字出现的次数 II](https://leetcode-cn.com/problems/shu-zu-zhong-shu-zi-chu-xian-de-ci-shu-ii-lcof/)
+
+**题目**：在一个数组 `nums` 中除一个数字只出现一次之外，其他数字都出现了三次。请找出那个只出现一次的数字。
+
+**示例 ：**
+
+```
+输入：nums = [3,4,3,3]
+输出：4
+```
+
+**思路**：
+
+- 使用 **与运算** ，可以获取二进制数字 num 的最右一位
+- 配合 **无符号右移操作**，可以获取 num 所有位的值
+- 建立一个长度为 32 的数组 counts，通过上面方法记录所有数字的各二进制位的 1 出现的次数。
+- 将 counts 各元素对 3 求余，则结果为“只出现一次的数字”的各二进制位。
+- 利用 **左移操作** 和 **或运算** ，可以将 counts 数组中各二进制位的值恢复到数字 res 上
+- 最终返回res
+
+```js
+var singleNumber = function(nums) {
+    let counts = new Array(32).fill(0)
+    for(let i=0; i<nums.length; i++){
+        for(let j=0; j<32; j++){
+            counts[j] += nums[i] & 1
+            nums[i] >>>=1
+        }
+    }
+
+    let res =0
+    for(let i=0; i<32; i++){
+        res <<=1
+        res |= counts[31-i]%3
+    }
+    return res
+};
+```
+
 
 
 ## BFS
@@ -910,6 +1012,20 @@ var isStraight = function(nums){
     }
     return nums[4] - nums[min] < 5
 }
+```
+
+[剑指 Offer 64. 求1+2+…+n](https://leetcode-cn.com/problems/qiu-12n-lcof/)
+
+**题目**：求 `1+2+...+n` ，要求不能使用乘除法、for、while、if、else、switch、case等关键字及条件判断语句（A?B:C）。
+
+**思路**：巧妙利用逻辑与短路特性作为递归结束条件。
+
+```js
+var sumNums = function(n) {
+    let sum=n
+    n && (sum+=sumNums(n-1))
+    return sum
+};
 ```
 
 
