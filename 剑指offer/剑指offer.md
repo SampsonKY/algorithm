@@ -519,7 +519,54 @@ var compare = function(s, t){
 }
 ```
 
+[剑指 Offer 07. 重建二叉树](https://leetcode-cn.com/problems/zhong-jian-er-cha-shu-lcof/)
 
+**题目**：输入某二叉树的前序遍历和中序遍历的结果，请重建该二叉树。假设输入的前序遍历和中序遍历的结果中都不含重复的数字。
+
+**例子**
+
+```
+前序遍历 preorder = [3,9,20,15,7]
+中序遍历 inorder = [9,3,15,20,7]
+```
+
+返回如下的二叉树：
+
+```
+    3
+   / \
+  9  20
+    /  \
+   15   7
+```
+
+**思路**：
+
+- 前序遍历列表：第一个元素永远是 【根节点 (root)】
+- 中序遍历列表：根节点 (root)【左边】的所有元素都在根节点的【左分支】，【右边】的所有元素都在根节点的【右分支】
+- 通过【前序遍历列表】确定【根节点 (root)】
+- 将【中序遍历列表】的节点分割成【左分支节点】和【右分支节点】
+- 递归寻找【左分支节点】中的【根节点 (left child)】和 【右分支节点】中的【根节点 (right child)】
+
+```js
+var buildTree = function(preorder, inorder) {
+    if(preorder.length === 0) return null
+    let map = new Map()
+    for(let i=0; i<inorder.length; i++){ //存为map结构，便于获取下标
+        map.set(inorder[i], i)
+    }
+
+    function recur(root, left, right){ 
+        if(left > right) return null //递归终止
+        let node = new TreeNode(preorder[root])//建立根节点
+        let i = map.get(preorder[root]) //划分根节点，左子树，右子树
+        node.left = recur(root+1, left, i-1)//开启左子树递归
+        node.right = recur(root+i-left+1, i+1, right)//开启右子树递归
+        return node //返回根节点
+    }
+    return recur(0, 0, inorder.length-1)
+};
+```
 
 
 
@@ -729,6 +776,47 @@ var singleNumber = function(nums) {
         res |= counts[31-i]%3
     }
     return res
+};
+```
+
+[剑指 Offer 56 - I. 数组中数字出现的次数](https://leetcode-cn.com/problems/shu-zu-zhong-shu-zi-chu-xian-de-ci-shu-lcof/)
+
+**题目**：一个整型数组 `nums` 里除两个数字之外，其他数字都出现了两次。请写程序找出这两个只出现一次的数字。要求时间复杂度是O(n)，空间复杂度是O(1)。
+
+**示例 1：**
+
+```
+输入：nums = [4,1,4,6]
+输出：[1,6] 或 [6,1]
+```
+
+**思路**：
+
+- 两个数字进行异或操作会将每一位进行异或，相同为0，相异为1。
+
+- 题目数组中存在两个不重复的数字，若将所有数字进行异或操作，得到的二最终结果是那两个不重复数字的异或结果。问题是如何将这两个数的异或结果分离。
+- 换一种思路，如果将重复的数字进行分组，重复的数字在同一组，不同的数字在不同组。这样对两组数各自进行异或，得到的最终结果即为所求。
+- 如何分组？我们知道将所有数字进行异或操作的结果中位数为1，表示两个不重复数那一位相异，利用这个特性进行分组。
+
+```js
+var singleNumbers = function(nums) {
+    let ret = 0
+    for(let num of nums){
+        ret ^= num
+    }
+    let div = 1
+    while((ret & div) === 0){
+        div <<= 1
+    }
+    let a = 0, b = 0
+    for(let num of nums){
+        if((num & div) === 0){
+            a ^= num
+        } else{
+            b^=num
+        }
+    }
+    return [a,b]
 };
 ```
 
