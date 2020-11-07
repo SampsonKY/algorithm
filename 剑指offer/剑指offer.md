@@ -402,6 +402,38 @@ var copyRandomList = function(head){
 }
 ```
 
+[剑指 Offer 36. 二叉搜索树与双向链表](https://leetcode-cn.com/problems/er-cha-sou-suo-shu-yu-shuang-xiang-lian-biao-lcof/)
+
+输入一棵二叉搜索树，将该二叉搜索树转换成一个排序的循环双向链表。要求不能创建任何新的节点，只能调整树中节点指针的指向。
+
+<img src="https://pic.leetcode-cn.com/963f2da36712b57f870a5e81d839a03737a347f19bab268cf1fd6fd60649711e-Picture14.png" alt="Picture14.png" style="zoom:50%;" />
+
+**思路**：使用中序遍历访问树的各节点 curcur ；并在访问每个节点时构建 curcur 和前驱节点 prepre 的引用指向；中序遍历完成后，最后构建头节点和尾节点的引用指向即可。
+
+```js
+var treeToDoublyList = function(root) {
+    if(!root) return null
+    let head, pre
+    dfs(root)
+    ////进行头节点和尾节点的相互指向
+    head.left = pre
+    pre.right = head
+
+    function dfs(cur){
+        if(!cur) return null
+        dfs(cur.left)
+        if(pre) pre.right = cur
+        else head = cur
+        cur.left = pre
+        pre=cur
+        dfs(cur.right)
+    }
+    return head
+};
+```
+
+
+
 
 
 ### 快慢指针
@@ -1018,6 +1050,83 @@ var majorityElement = function(nums) {
         res == nums[i] ? count++ : count--
     }
     return res
+};
+```
+
+[剑指 Offer 49. 丑数](https://leetcode-cn.com/problems/chou-shu-lcof/)
+
+**题目**：我们把只包含质因子 2、3 和 5 的数称作丑数（Ugly Number）。求按从小到大的顺序的第 n 个丑数。
+
+**示例:**
+
+```
+输入: n = 10
+输出: 12
+解释: 1, 2, 3, 4, 5, 6, 8, 9, 10, 12 是前 10 个丑数。
+```
+
+**思路**
+
+> 丑数的递推性质：丑数只包含因子 2, 3, 52,3,5 ，因此有 “丑数 == 某较小丑数 × 某因子” （例如：10=5×2）。
+>
+> **一个丑数乘以 2， 3， 5 之后， 一定还是一个丑数**。
+
+- 方法一：暴力法（会超时）
+
+- 方法二：**动态规划**
+
+  <img src="https://pic.leetcode-cn.com/837411664f096417badf857fa51e77fd30cb1309a5637c37d24d8a4a48a42b03-Picture1.png" alt="Picture1.png" style="zoom:50%;" />
+  - 假设有三个数组n2，n3，n5分别代表丑数序列从1开始分别乘以2,3,5的序列，即
+
+    ```js
+    nums2 = {1*2, 2*2, 3*2, 4*2, 5*2, 6*2, 8*2...}
+    nums3 = {1*3, 2*3, 3*3, 4*3, 5*3, 6*3, 8*3...}
+    nums5 = {1*5, 2*5, 3*5, 4*5, 5*5, 6*5, 8*5...}
+    ```
+
+    最终的丑数序列实际上就是这 3 个有序序列对的合并结果， 计算丑数序列也就是相当于 **合并 3 个有序序列**。
+
+    合并 3 个有序序列， 最简单的方法就是每一个序列都各自维护一个指针， 然后比较指针指向的元素的值， 将最小的放入最终的合并数组中， 并将相应指针向后移动一个元素。
+
+
+```js
+//方法1：暴力法
+var nthUglyNumber = function(n){
+    let res = []
+    let k = 0
+    for(let num=1;; num++){
+        i = num
+        while(i%2===0){
+            i/=2
+        }
+        while(i%5===0){
+            i/=5
+        }
+        while(i%3===0){
+            i/=3
+        }
+        if(i===1){
+            console.log(num, i)
+            res.push(num)
+            k++
+        }
+        if(k===n) break
+    }
+    return res[n-1]
+}
+//方法二：动态规划
+var nthUglyNumber = function(n) {
+    let a=0,b=0,c=0
+    let dp=new Array(n)
+    dp[0]=1
+    for(let i=1; i<n; i++){
+        let n2 = dp[a]*2, n3 = dp[b]*3, n5 = dp[c]*5
+        dp[i] = Math.min(n2, n3, n5)
+        if(dp[i]==n2) a++
+        if(dp[i]==n3) b++
+        if(dp[i]==n5) c++
+    }
+    return dp[n-1]
 };
 ```
 
