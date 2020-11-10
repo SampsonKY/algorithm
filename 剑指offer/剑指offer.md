@@ -33,6 +33,37 @@ MinStack.prototype.min = function() {
 };
 ```
 
+[剑指 Offer 31. 栈的压入、弹出序列](https://leetcode-cn.com/problems/zhan-de-ya-ru-dan-chu-xu-lie-lcof/)
+
+**题目**：输入两个整数序列，第一个序列表示栈的压入顺序，请判断第二个序列是否为该栈的弹出顺序。假设压入栈的所有数字均不相等。例如，序列 {1,2,3,4,5} 是某栈的压栈序列，序列 {4,5,3,2,1} 是该压栈序列对应的一个弹出序列，但 {4,3,5,1,2} 就不可能是该压栈序列的弹出序列。
+
+**示例 1：**
+
+```
+输入：pushed = [1,2,3,4,5], popped = [4,5,3,2,1]
+输出：true
+解释：我们可以按以下顺序执行：
+push(1), push(2), push(3), push(4), pop() -> 4,
+push(5), pop() -> 5, pop() -> 3, pop() -> 2, pop() -> 1
+```
+
+```js
+var validateStackSequences = function(pushed, popped) {
+    let stack = []
+    let i = 0
+    for(let num of pushed){
+        stack.push(num)
+        while(stack.length && stack[stack.length-1] === popped[i]){
+            stack.pop()
+            i++
+        }
+    }
+    return stack.length === 0
+};
+```
+
+
+
 
 
 ## 数组
@@ -882,6 +913,124 @@ var levelOrder = function(root) {
 
 
 
+## 回溯法
+
+[剑指 Offer 34. 二叉树中和为某一值的路径](https://leetcode-cn.com/problems/er-cha-shu-zhong-he-wei-mou-yi-zhi-de-lu-jing-lcof/)
+
+**题目**：输入一棵二叉树和一个整数，打印出二叉树中节点值的和为输入整数的所有路径。从树的根节点开始往下一直到叶节点所经过的节点形成一条路径。
+
+**示例:**
+给定如下二叉树，以及目标和 `sum = 22`，
+
+```
+              5
+             / \
+            4   8
+           /   / \
+          11  13  4
+         /  \    / \
+        7    2  5   1
+```
+
+返回:
+
+```
+[
+   [5,4,11,2],
+   [5,8,4,5]
+]
+```
+
+  **思路**：回溯法
+
+```js
+var pathSum = function(root, sum) {
+    if(!root) return []
+    let res = [], path = []
+    function dfs(root, num){
+        if(!root) return
+        path.push(root.val)
+        num -= root.val
+        if(num === 0 && !root.left && !root.right) {
+            res.push(path.slice())
+        }
+        dfs(root.left, num)
+        dfs(root.right, num)
+        path.pop()
+    }
+    dfs(root, sum)
+    return res
+};
+```
+
+[剑指 Offer 38. 字符串的排列](https://leetcode-cn.com/problems/zi-fu-chuan-de-pai-lie-lcof/)
+
+**题目**：输入一个字符串，打印出该字符串中字符的所有排列。
+
+你可以以任意顺序返回这个字符串数组，但里面不能有重复元素
+
+**示例:**
+
+```
+输入：s = "abc"
+输出：["abc","acb","bac","bca","cab","cba"]
+```
+
+**思路**：回溯法，难点在于剪枝条件
+
+```js
+//方法一
+var permutation = function(s) {
+    let str = Array.from(s).sort()
+
+    let res = []
+    let len = str.length        
+    let visit = {}
+    function backtrack(path){
+        if(path.length === len){ //触发结束条件
+            res.push(path)
+            return
+        }
+
+        for(let i=0; i<len; i++){
+            if(visit[i] || (i>0 && !visit[i-1]&&str[i-1]==str[i])){//排除不合法的选择
+                continue
+            }
+            visit[i] = true
+            path.push(str[i]) //做选择
+            backtrack(path.slice()) //进入下一层决策树
+            path.pop()//取消选择
+            visit[i] = false
+        }
+    }
+    backtrack([])
+    return res.map(item=>item.join(""))
+};
+
+//方法2
+var permutation = function(s) {
+    let res = new Set()
+    let len = s.length
+    let visit = {}
+    function backtrack(path){
+        if(path.length === len){ //触发结束条件
+            res.add(path)
+            return
+        }
+        for(let i=0; i<len; i++){
+            if(visit[i]) continue
+            visit[i] = true
+            backtrack(path+s[i]) //进入下一层决策树
+            visit[i] = false
+        }
+    }
+    backtrack("")
+    return [...res]
+};
+```
+
+
+
 ## 二分查找
 
 [剑指 Offer 11. 旋转数组的最小数字](https://leetcode-cn.com/problems/xuan-zhuan-shu-zu-de-zui-xiao-shu-zi-lcof/)
@@ -954,6 +1103,36 @@ var missingNumber = function(nums) {
         else left = mid+1
     }
     return left === nums.length-1 && nums[left]==left ? left+1 :left
+};
+```
+
+
+
+## 排序
+
+[剑指 Offer 45. 把数组排成最小的数](https://leetcode-cn.com/problems/ba-shu-zu-pai-cheng-zui-xiao-de-shu-lcof/)
+
+**题目**：输入一个非负整数数组，把数组里所有数字拼接起来排成一个数，打印能拼接出的所有数字中最小的一个。
+
+**示例 1:**
+
+```
+输入: [10,2]
+输出: "102"
+```
+
+**思路**：
+
+- 本题本质上是一个自定义排序问题
+- **排序判断规则**：设 nums 任意两数字的**字符串格式** x 和 y ，则若 x+y > y+x 则 x>y，否则x<y
+- 根据以上规则排序，然后拼接排序后的字符串
+
+```js
+var minNumber = function(nums) {
+    nums.sort((x,y)=>{
+        return (""+x+y) - (""+y+x)
+    })
+    return nums.join("")
 };
 ```
 
@@ -1225,6 +1404,47 @@ var sumNums = function(n) {
 };
 ```
 
+[剑指 Offer 66. 构建乘积数组](https://leetcode-cn.com/problems/gou-jian-cheng-ji-shu-zu-lcof/)
+
+**题目**：给定一个数组 `A[0,1,…,n-1]`，请构建一个数组 `B[0,1,…,n-1]`，其中 `B` 中的元素 `B[i]=A[0]×A[1]×…×A[i-1]×A[i+1]×…×A[n-1]`。不能使用除法。
+
+**示例:**
+
+```
+输入: [1,2,3,4,5]
+输出: [120,60,40,30,24]
+```
+
+**思路**：
+
+- 思路：定义`c[i] = a[0]*a[1]*...*a[i-1]`，`d[i] = a[i+1]*...*a[n-1]`
+
+- c[i]可以从上到下计算出来 `c[i] = c[i-1]*a[i-1]`，d[i]可以从下到上计算出来`d[i] = d[i+1]*a[i+1]`
+
+- 最后 `b[i] = c[i] * d[i]`
+
+<img src="E:\前端の道\algorithm\剑指offer\images\66.png" alt="66" style="zoom:80%;" />
+
+```js
+var constructArr = function(a) {
+    let n = a.length
+    let c = new Array(n), d = new Array(n), b= new Array(n)
+    c[0] = 1, d[n-1] = 1
+    for(let i=1; i<n; i++){
+        c[i] = c[i-1]*a[i-1]
+    }
+    for(let i=n-2; i>=0; i--){
+        d[i] = d[i+1]*a[i+1]
+    }
+    for(let i=0; i<n; i++){
+        b[i] = c[i]*d[i]
+    }
+    return b
+};
+```
+
+
+
 
 
 ## 大数处理
@@ -1445,6 +1665,66 @@ var twoSum = function(n){
         res.push(dp[i]/total)
     }
     return res
+}
+```
+
+## 贪心算法
+
+[剑指 Offer 14- I. 剪绳子](https://leetcode-cn.com/problems/jian-sheng-zi-lcof/)
+
+**题目**：给你一根长度为 `n` 的绳子，请把绳子剪成整数长度的 `m` 段（m、n都是整数，n>1并且m>1），每段绳子的长度记为 `k[0],k[1]...k[m-1]` 。请问 `k[0]*k[1]*...*k[m-1]` 可能的最大乘积是多少？例如，当绳子的长度是8时，我们把它剪成长度分别为2、3、3的三段，此时得到的最大乘积是18。
+
+**示例 1：**
+
+```
+输入: 2
+输出: 1
+解释: 2 = 1 + 1, 1 × 1 = 1
+```
+
+**思路**：
+
+- **动态规划**
+
+  - **dp数组的含义：** dp[i] 表示将正整数 i 拆分成至少两个正整数的和之后，这些正整数的最大乘积。
+
+  - **状态转移方程：**
+    当 i≥2 时，假设对正整数 i 拆分出的第一个正整数是 j（1≤j<i），则有以下两种方案：
+
+    - 将 i 拆分成 j 和 i−j 的和，且 i−j 不再拆分成多个正整数，此时的乘积是 j×(i−j)；
+    - 将 i 拆分成 j 和 i−j 的和，且 i−j 继续拆分成多个正整数，此时的乘积是 j×dp[i−j]。
+
+    因此，当 j 固定时，有 `dp[i]=max(j×(i−j),j×dp[i−j])`。
+
+- **贪心算法**
+  - n 除 3 的结果为 a，余数是 b
+  - 当 b 为 0，直接将 a 个 3 相乘
+  - 当 b 为 1，将（a-1）个 3 相乘，再乘以 4
+  - 当 b 为 2，将 a 个 3 相乘，再乘以 2
+
+```js
+//dp
+var cuttingRope = function(n) {
+    let dp = new Array(n+1).fill(0)
+    dp[1] = 1
+    for(let i=2; i<=n; i++){
+        for(let j=1; j<=i; j++){
+            dp[i] = Math.max(dp[i], dp[i-j]*j, (i-j)*j)
+        }
+    }
+    return dp[n]
+};
+//贪心
+var cuttingRope = function(n){
+    if(n===2) return 1
+    if(n===3) return 2
+    let a = Math.floor(n/3) //n能拆成的3的个数
+    let b = n%3
+
+    if(b===0) return Math.pow(3,a)
+    if(b===1) return Math.pow(3, a-1)*4
+    
+    return Math.pow(3,a)*2
 }
 ```
 
