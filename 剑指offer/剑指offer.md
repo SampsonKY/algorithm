@@ -125,6 +125,52 @@ var verifyPostorder = function(postorder) {
 
 
 
+## 队列
+
+[剑指 Offer 59 - II. 队列的最大值](https://leetcode-cn.com/problems/dui-lie-de-zui-da-zhi-lcof/)
+
+**题目**：请定义一个队列并实现函数 `max_value` 得到队列里的最大值，要求函数`max_value`、`push_back` 和 `pop_front` 的**均摊**时间复杂度都是O(1)。
+
+若队列为空，`pop_front` 和 `max_value` 需要返回 -1
+
+**示例 1：**
+
+```
+输入: 
+["MaxQueue","push_back","push_back","max_value","pop_front","max_value"]
+[[],[1],[2],[],[],[]]
+输出: [null,null,null,2,1,2]
+```
+
+```js
+var MaxQueue = function() {
+    this.queue1 = []
+    this.queue2 = []
+};
+
+MaxQueue.prototype.max_value = function() {
+    if(!this.queue2.length) return -1
+    return this.queue2[0]
+};
+
+MaxQueue.prototype.push_back = function(value) {
+    this.queue1.push(value)
+    while(this.queue2.length && this.queue2[this.queue2.length-1] < value) this.queue2.pop()
+    this.queue2.push(value)
+}
+
+MaxQueue.prototype.pop_front = function() {
+    if(!this.queue1.length) return -1
+    let res = this.queue1.shift()
+    if(res === this.queue2[0]) this.queue2.shift()
+    return res
+};
+```
+
+
+
+
+
 ## 数组
 
 [剑指 Offer 40. 最小的k个数](https://leetcode-cn.com/problems/zui-xiao-de-kge-shu-lcof/)
@@ -969,6 +1015,68 @@ var levelOrder = function(root) {
     return res
 };
 ```
+
+
+
+## DFS
+
+[剑指 Offer 13. 机器人的运动范围](https://leetcode-cn.com/problems/ji-qi-ren-de-yun-dong-fan-wei-lcof/)
+
+**题目**：地上有一个m行n列的方格，从坐标 `[0,0]` 到坐标 `[m-1,n-1]` 。一个机器人从坐标 `[0, 0] `的格子开始移动，它每次可以向左、右、上、下移动一格（不能移动到方格外），也不能进入行坐标和列坐标的数位之和大于k的格子。例如，当k为18时，机器人能够进入方格 [35, 37] ，因为3+5+3+7=18。但它不能进入方格 [35, 38]，因为3+5+3+8=19。请问该机器人能够到达多少个格子？
+
+**示例 1：**
+
+```
+输入：m = 2, n = 3, k = 1
+输出：3
+```
+
+**思路**：
+
+- DFS
+- BFS
+
+```js
+//dfs
+var movingCount = function(m, n, k) {
+    let visited = new Array(m)
+    for(let i=0; i<m; i++){
+        visited[i] = new Array(n).fill(false)
+    }
+    function dfs(i, j){
+        if(i>=m || i<0 || j>=n || j<0 || (Math.floor(i/10)+i%10+Math.floor(j/10)+j%10) > k || visited[i][j]) return false
+        visited[i][j] = true
+        return 1 + dfs(i+1, j) + dfs(i, j+1)+ dfs(i-1, j) + dfs(i, j-1)
+    }
+    return dfs(0,0)
+};
+//bfs
+var movingCount = function(m, n, k){
+    let visited = new Array(m)
+    for(let i=0; i<m; i++){
+        visited[i] = new Array(n).fill(false)
+    }
+    let queue = []
+    let res = 0
+    queue.push([0,0])
+    while(queue.length){
+        let size = queue.length
+        while(size--){
+            let [i, j] = queue.shift()
+            if(i>=m || i<0 || j>=n || j<0 || (Math.floor(i/10)+i%10+Math.floor(j/10)+j%10) > k || visited[i][j]) continue
+            visited[i][j] = true
+            res++
+            queue.push([i+1,j])
+            queue.push([i, j+1])
+        }
+    }
+    return res
+}
+```
+
+
+
+
 
 
 
