@@ -331,6 +331,24 @@ function spiralOrder(matrix){
 }
 ```
 
+[面试题4. 二维数组中的查找](https://leetcode-cn.com/problems/er-wei-shu-zu-zhong-de-cha-zhao-lcof/)
+
+**题目**：在一个 n * m 的二维数组中，每一行都按照从左到右递增的顺序排序，每一列都按照从上到下递增的顺序排序。请完成一个高效的函数，输入这样的一个二维数组和一个整数，判断数组中是否含有该整数。
+
+```js
+var findNumberIn2DArray = function(matrix, target) {
+    let i=matrix.length-1, j=0
+    while(i>=0 && j<matrix[0].length){
+        if(matrix[i][j] > target) i--
+        else if(matrix[i][j] < target) j++
+        else return true
+    }
+    return false
+};
+```
+
+
+
 
 
 ## 字符串
@@ -1533,6 +1551,42 @@ var nthUglyNumber = function(n) {
         if(dp[i]==n5) c++
     }
     return dp[n-1]
+};
+```
+
+[剑指 Offer 44. 数字序列中某一位的数字](https://leetcode-cn.com/problems/shu-zi-xu-lie-zhong-mou-yi-wei-de-shu-zi-lcof/)
+
+**题目**：数字以0123456789101112131415…的格式序列化到一个字符序列中。在这个序列中，第5位（从下标0开始计数）是5，第13位是1，第19位是4，等等。
+
+请写一个函数，求任意第n位对应的数字
+
+**示例 1：**
+
+```
+输入：n = 3
+输出：3
+```
+
+**示例 2：**
+
+```
+输入：n = 11
+输出：0
+```
+
+```js
+var findNthDigit = function(n) {
+    let digit = 1 //数位（个位/十位/百位....，对应1/2/3）
+    let start = 1//该数位所有数的起始点数(个位是1,十位是10，百位是100)
+    let count = 9 //该数位的数一共的索引个数
+    while(n > count){
+        n-=count
+        digit+=1
+        start*=10
+        count = digit*start*9
+    }
+    let num = start+Math.floor((n-1)/digit)
+    return num.toString().charAt((n-1)%digit) - '0'
 };
 ```
 
